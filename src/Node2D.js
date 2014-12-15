@@ -36,3 +36,15 @@ Node2D.prototype.remove = function (sprite) {
     }
     this.list.splice(i, 1);
 };
+
+/**
+ * Runs a command against all sprites
+ * @param  {Function(sprite)} fn  A command that recieves a sprite
+ */
+Node2D.prototype.all = function (fn) {
+    "use strict";
+    var i, l;
+    for (i = 0, l = this.list.length; i < l; i += 1) {
+        fn(this.list[i]);
+    }
+};
