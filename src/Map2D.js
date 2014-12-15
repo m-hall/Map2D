@@ -96,3 +96,44 @@ Map2D.prototype.pathTo = function (sprite, end) {
     "use strict";
 
 };
+
+/////////////////////////
+// Collision functions //
+/////////////////////////
+
+/**
+ * Calculates distance from a point to a rectangle
+ * @param  {object} point  Point with x, y
+ * @param  {object} rect   Rectangle with x, y, width, height
+ * @return {float}         Distance value
+ */
+Map2D.prototype.distancePointRectangle = function (point, rect) {
+    "use strict";
+
+    var dx = Math.max(Math.min(point.x, rect.x + rect.width), rect.x),
+        dy = Math.max(Math.min(point.y, rect.y + rect.height), rect.y);
+    return Math.sqrt((point.x - dx) * (point.x - dx) + (point.y - dy) * (point.y - dy));
+};
+/**
+ * Calculates the distance between 2 points
+ * @param  {object} pointA  Point with x, y
+ * @param  {object} pointB  Point with x, y
+ * @return {float}          Distance value
+ */
+Map2D.prototype.distancePointPoint = function (pointA, pointB) {
+    "use strict";
+    var dx = pointA.x - pointB.x,
+        dy = pointA.y - pointB.y;
+    return Math.sqrt(dx * dx + dy * dy);
+};
+/**
+ * Checks if a sprite collides with any other nodes in the map
+ * @param  {object} sprite  A Sprite object with x, y and a defined size
+ * @return {Array<object>}  A list of any other sprites this one collides with
+ */
+Map2D.prototype.collisions = function (sprite) {
+    "use strict";
+    var collisions = [];
+
+    return collisions;
+};
