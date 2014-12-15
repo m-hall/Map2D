@@ -10,7 +10,7 @@ var Manhattan = function (map) {
     "use strict";
     this.map = map;
 };
-Manhattan.prototype = new Heuristic();
+Manhattan.prototype = Object.create(Heuristic.prototype);
 /**
  * Calculates the distance between 2 nodes
  * @param  {Node2D} nodeA  A map node
