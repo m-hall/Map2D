@@ -81,3 +81,18 @@ Map2D.prototype.all = function (fn) {
         fn(this.list[i]);
     }
 };
+
+////////////////////
+// Path functions //
+////////////////////
+
+/**
+ * Generates a path from a sprites current location to end coordinates
+ * @param  {object} sprite  A sprite object with x, y
+ * @param  {object} end     A bounds object with x, y
+ * @return {Path}           A path from the current node to the end node
+ */
+Map2D.prototype.pathTo = function (sprite, end) {
+    "use strict";
+
+};
