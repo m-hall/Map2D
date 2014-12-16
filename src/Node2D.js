@@ -36,6 +36,13 @@ Node2D.prototype.remove = function (sprite) {
     }
     this.list.splice(i, 1);
 };
+/**
+ * Clears the sprites from the Node
+ */
+Node2D.prototype.clear = function () {
+    "use strict";
+    this.list = [];
+};
 
 /**
  * Runs a command against all sprites
