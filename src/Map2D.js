@@ -26,9 +26,6 @@ var Map2D = function (width, height, options) {
         this.heuristic = options.heuristic;
     }
 
-    this.list = [];
-    this.map = {};
-
     this.reset();
 };
 Map2D.prototype.blockSize = 10;
@@ -41,12 +38,33 @@ Map2D.prototype.heuristic = Heuristic;
 Map2D.prototype.fill = function () {
     "use strict";
 
+    var list = [],
+        map = {},
+        N = this.nodeConstructor,
+        b = this.blockSize,
+        w = this.width,
+        h = this.height,
+        node,
+        i,
+        j;
+
+    for (i = 0; i < w; i += b) {
+        this.map[i] = {};
+        for (j = 0; j < h; j += b) {
+            node = new N(this, i, j);
+            list.push(node);
+            map[i][j] = node;
+        }
+    }
+    this.list = list;
+    this.map = map;
 };
 /**
  * Resets the map
  */
 Map2D.prototype.reset = function () {
     "use strict";
+    this.clear();
     this.fill();
 };
 /**
@@ -54,6 +72,11 @@ Map2D.prototype.reset = function () {
  */
 Map2D.prototype.clear = function () {
     "use strict";
+    var i,
+        l;
+    for (i = 0, l = this.list.length; i < l; i++) {
+        this.list[i].clear();
+    }
 };
 /**
  * Adds a sprite to the map
