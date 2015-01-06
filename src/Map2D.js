@@ -32,31 +32,48 @@ Map2D.prototype.blockSize = 10;
 Map2D.prototype.nodeConstructor = Node2D;
 Map2D.prototype.heuristic = Heuristic;
 
+Object.defineProperty(
+    Map2D.prototype,
+    "list",
+    {
+        get: function () {
+            "use strict";
+            var i,
+                l,
+                items = [];
+            for (i = 0, l = this.nodes.length; i < l; i += 1) {
+                items = items.concat(this.nodes[i].list);
+            }
+            return items;
+        }
+    }
+);
+
 /**
  * Fills the map with nodes based on width, height and blockSize
  */
 Map2D.prototype.fill = function () {
     "use strict";
 
-    var list = [],
+    var nodes = [],
         map = {},
         N = this.nodeConstructor,
         b = this.blockSize,
-        w = this.width,
-        h = this.height,
+        w = this.width / b,
+        h = this.height / b,
         node,
         i,
         j;
 
-    for (i = 0; i < w; i += b) {
+    for (i = 0; i < w; i += 1) {
         this.map[i] = {};
-        for (j = 0; j < h; j += b) {
+        for (j = 0; j < h; j += 1) {
             node = new N(this, i, j);
-            list.push(node);
+            nodes.push(node);
             map[i][j] = node;
         }
     }
-    this.list = list;
+    this.nodes = nodes;
     this.map = map;
 };
 /**
@@ -74,8 +91,8 @@ Map2D.prototype.clear = function () {
     "use strict";
     var i,
         l;
-    for (i = 0, l = this.list.length; i < l; i++) {
-        this.list[i].clear();
+    for (i = 0, l = this.nodes.length; i < l; i += 1) {
+        this.nodes[i].clear();
     }
 };
 /**
@@ -84,6 +101,15 @@ Map2D.prototype.clear = function () {
  */
 Map2D.prototype.add = function (sprite) {
     "use strict";
+    var x = Math.floor(sprite.x / this.blockSize),
+        y = Math.floor(sprite.y / this.blockSize);
+
+    if (!this.map[x] || !this.map[x][y]) {
+        return false;
+    }
+
+    this.map[x][y].add(sprite);
+    return true;
 };
 /**
  * Removes a sprite from the map
@@ -92,6 +118,15 @@ Map2D.prototype.add = function (sprite) {
 Map2D.prototype.remove = function (sprite) {
     "use strict";
 
+    var x = Math.floor(sprite.x / this.blockSize),
+        y = Math.floor(sprite.y / this.blockSize);
+
+    if (!this.map[x] || !this.map[x][y]) {
+        return false;
+    }
+
+    this.map[x][y].remove(sprite);
+    return true;
 };
 /**
  * Runs a command against all sprites
@@ -100,8 +135,8 @@ Map2D.prototype.remove = function (sprite) {
 Map2D.prototype.all = function (fn) {
     "use strict";
     var i, l;
-    for (i = 0, l = this.list.length; i < l; i += 1) {
-        fn(this.list[i]);
+    for (i = 0, l = this.nodes.length; i < l; i += 1) {
+        fn(this.nodes[i]);
     }
 };
 
