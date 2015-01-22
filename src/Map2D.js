@@ -1,4 +1,4 @@
-/*global Heuristic, Node2D */
+/*global Node2D */
 
 /**
  * A 2D Grid Map
@@ -7,7 +7,6 @@
  * @param {object} options  Extra options for the Map object
  *   - blockSize        {integer}
  *   - nodeConstructor  {Node2D}
- *   - heuristic        {Heuristic}
  */
 var Map2D = function (width, height, options) {
     "use strict";
@@ -22,15 +21,11 @@ var Map2D = function (width, height, options) {
     if (options.nodeConstructor) {
         this.nodeConstructor = options.nodeConstructor;
     }
-    if (options.heuristic) {
-        this.heuristic = options.heuristic;
-    }
 
     this.reset();
 };
 Map2D.prototype.blockSize = 10;
 Map2D.prototype.nodeConstructor = Node2D;
-Map2D.prototype.heuristic = Heuristic;
 
 Object.defineProperty(
     Map2D.prototype,
@@ -138,21 +133,6 @@ Map2D.prototype.all = function (fn) {
     for (i = 0, l = this.nodes.length; i < l; i += 1) {
         fn(this.nodes[i]);
     }
-};
-
-////////////////////
-// Path functions //
-////////////////////
-
-/**
- * Generates a path from a sprites current location to end coordinates
- * @param  {object} sprite  A sprite object with x, y
- * @param  {object} end     A bounds object with x, y
- * @return {Path}           A path from the current node to the end node
- */
-Map2D.prototype.pathTo = function (sprite, end) {
-    "use strict";
-
 };
 
 /////////////////////////
