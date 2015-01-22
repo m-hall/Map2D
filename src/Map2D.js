@@ -164,6 +164,15 @@ Map2D.prototype.distancePointPoint = function (pointA, pointB) {
         dy = pointA.y - pointB.y;
     return Math.sqrt(dx * dx + dy * dy);
 };
+
+Map2D.prototype.isRadial = function (sprite) {
+    "use strict";
+    return !isNaN(sprite.x) && !isNaN(sprite.y) && !isNaN(sprite.radius);
+};
+Map2D.prototype.isRectangular = function (sprite) {
+    "use strict";
+    return !isNaN(sprite.x) && !isNaN(sprite.y) && !isNaN(sprite.width) && !isNaN(sprite.height);
+};
 /**
  * Checks if a sprite collides with any other nodes in the map
  * @param  {object} sprite  A Sprite object with x, y and a defined size
@@ -171,7 +180,47 @@ Map2D.prototype.distancePointPoint = function (pointA, pointB) {
  */
 Map2D.prototype.collisions = function (sprite) {
     "use strict";
-    var collisions = [];
+    if (this.isRadial(sprite)) {
+        return this.radialCollisions(sprite);
+    }
+    if (this.isRectangular(sprite)) {
+        return this.rectangularCollisions(sprite);
+    }
+    return [];
+};
+Map2D.prototype.radialCompare = function (collisions, sprite1, sprite2) {
+    "use strict";
+    if (sprite1 === sprite2) {
+        return;
+    } else if (this.isRadial(sprite2)) {
+        if (this.distancePointPoint(sprite1, sprite2) < sprite1.radius + sprite2.radius) {
+            collisions.push(sprite2);
+        }
+    } else if (this.isRectangular(sprite2)) {
+        if (this.distancePointRectangle(sprite1, sprite2) < sprite1.radius) {
+            collisions.push(sprite2);
+        }
+    } else {
+        if (this.distancePointPoint(sprite1, sprite2) < sprite1.radius) {
+            collisions.push(sprite2);
+        }
+    }
+};
+Map2D.prototype.radialCollisions = function (sprite) {
+    "use strict";
+    var collisions = [],
+        lx = Math.max(Math.floor((sprite.x - sprite.radius) / this.blockSize), 0),
+        ly = Math.max(Math.floor((sprite.y - sprite.radius) / this.blockSize), 0),
+        mx = Math.min(Math.ceil((sprite.x + sprite.radius) / this.blockSize), 0),
+        my = Math.min(Math.ceil((sprite.y + sprite.radius) / this.blockSize), 0),
+        x,
+        y;
+
+    for (x = mx; x > lx; x--) {
+        for (y = my; y > ly; y--) {
+            map[x][y].all(this.radialCompare.call(this, collisions, sprite));
+        }
+    }
 
     return collisions;
 };
