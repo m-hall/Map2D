@@ -164,11 +164,20 @@ Map2D.prototype.distancePointPoint = function (pointA, pointB) {
         dy = pointA.y - pointB.y;
     return Math.sqrt(dx * dx + dy * dy);
 };
-
+/**
+ * Checks if a sprite is radial
+ * @param  {object}  sprite A sprite object
+ * @return {Boolean}        True if the sprite is radial, false otherwise
+ */
 Map2D.prototype.isRadial = function (sprite) {
     "use strict";
     return !isNaN(sprite.x) && !isNaN(sprite.y) && !isNaN(sprite.radius);
 };
+/**
+ * Checks if a sprite has rectangular properties
+ * @param  {object}  sprite A sprite object
+ * @return {Boolean}        True if the sprite is rectangular, false otherwise
+ */
 Map2D.prototype.isRectangular = function (sprite) {
     "use strict";
     return !isNaN(sprite.x) && !isNaN(sprite.y) && !isNaN(sprite.width) && !isNaN(sprite.height);
@@ -188,6 +197,12 @@ Map2D.prototype.collisions = function (sprite) {
     }
     return [];
 };
+/**
+ * Compares 2 sprites assuming that the first is a radial object
+ * @param  {Array} collisions A collection to push collisions to
+ * @param  {object} sprite1    A Sprite object with x, y and radius
+ * @param  {object} sprite2    A Sprite object with x, y and a defined height
+ */
 Map2D.prototype.radialCompare = function (collisions, sprite1, sprite2) {
     "use strict";
     if (sprite1 === sprite2) {
@@ -206,6 +221,11 @@ Map2D.prototype.radialCompare = function (collisions, sprite1, sprite2) {
         }
     }
 };
+/**
+ * Checks if a radial sprite collides with any other nodes in the map
+ * @param  {object} sprite A Sprite object with x, y and radius
+ * @return {Array}         A collections of objects that the sprite collids with
+ */
 Map2D.prototype.radialCollisions = function (sprite) {
     "use strict";
     var collisions = [],
