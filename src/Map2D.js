@@ -61,7 +61,7 @@ Map2D.prototype.fill = function () {
         j;
 
     for (i = 0; i < w; i += 1) {
-        this.map[i] = {};
+        map[i] = {};
         for (j = 0; j < h; j += 1) {
             node = new N(this, i, j);
             nodes.push(node);
@@ -86,6 +86,9 @@ Map2D.prototype.clear = function () {
     "use strict";
     var i,
         l;
+    if (!this.nodes) {
+        return;
+    }
     for (i = 0, l = this.nodes.length; i < l; i += 1) {
         this.nodes[i].clear();
     }
@@ -131,7 +134,7 @@ Map2D.prototype.all = function (fn) {
     "use strict";
     var i, l;
     for (i = 0, l = this.nodes.length; i < l; i += 1) {
-        fn(this.nodes[i]);
+        this.nodes[i].all(fn);
     }
 };
 
