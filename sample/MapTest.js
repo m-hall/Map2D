@@ -3,16 +3,21 @@
 
     var canvas,
         context,
+        width = 500,
+        height = 500,
         map,
-        nSprites = 200,
-        theSprite;
+        nSprites = 50,
+        theSprite,
+        lastTime;
 
     function makeSprite() {
         var r = 5 + Math.random() * 20;
         return {
-            x: Math.random() * (1000 - r * 2) + r,
-            y: Math.random() * (1000 - r * 2) + r,
-            radius: r
+            x: Math.random() * (width - r * 2) + r,
+            y: Math.random() * (height - r * 2) + r,
+            radius: r,
+            velocity: (50 + Math.random() * 100) / 1000,
+            angle: Math.PI * 2 * Math.random()
         };
     }
     function init() {
@@ -20,27 +25,55 @@
         canvas = document.createElement('canvas');
         canvas.style.width = "500px";
         canvas.style.height = "500px";
-        canvas.width = 1000;
-        canvas.height = 1000;
+        canvas.width = width;
+        canvas.height = height;
         document.body.appendChild(canvas);
 
         context = canvas.getContext('2d');
-        map = new Map2D(1000, 1000);
+        map = new Map2D(width, height, {blockSize: 50});
         for (i = 0; i < nSprites; i++) {
             map.add(makeSprite());
         }
         theSprite = makeSprite();
+        theSprite.radius = 50;
     }
     function renderSprite(sprite) {
         context.moveTo(sprite.x + sprite.radius, sprite.y);
         context.arc(sprite.x, sprite.y, sprite.radius, 0, Math.PI * 2);
     }
+    function updateSprite(delta, sprite) {
+        var distance = sprite.velocity * delta,
+            x = Math.sin(sprite.angle) * distance,
+            y = Math.cos(sprite.angle) * distance;
+        sprite.x = (sprite.x + x) % width;
+        sprite.y = (sprite.y + y) % height;
+        if (sprite.x < 0) {
+            sprite.x = width;
+        }
+        if (sprite.y < 0) {
+            sprite.y = height;
+        }
+    }
+    function updateMapSprite(delta, sprite) {
+        map.remove(sprite);
+        updateSprite(delta, sprite);
+        map.add(sprite);
+    }
     function render() {
-        var collisions,
+        var delta = lastTime ? Date.now() - lastTime : 0,
+            collisions,
             i,
-            l;
+            l,
+            perf;
 
-        context.clearRect(0, 0, 1000, 1000);
+        perf = window.performance.now();
+        updateSprite(delta, theSprite);
+        map.all(updateMapSprite.bind(this, delta));
+
+        collisions = map.collisions(theSprite);
+        console.log(collisions.length, window.performance.now() - perf);
+
+        context.clearRect(0, 0, width, height);
 
         context.beginPath();
         context.fillStyle = "rgba(255, 0, 0, 0.5)";
@@ -50,7 +83,6 @@
 
         context.beginPath();
         context.fillStyle = "rgba(0, 255, 0, 0.5)";
-        collisions = map.collisions(theSprite);
         for (i = 0, l = collisions.length; i < l; i++) {
             renderSprite(collisions[i]);
         }
@@ -62,7 +94,8 @@
         renderSprite(theSprite);
         context.fill();
         context.closePath();
-
+        lastTime = Date.now();
+        window.requestAnimationFrame(render);
     }
     function load() {
         init();
