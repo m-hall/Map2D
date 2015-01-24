@@ -77,7 +77,12 @@ Map2D.prototype.clear = function () {
         this.nodes[i].clear();
     }
 };
-Map2D.prototype.getNodes = function (sprite) {
+/**
+ * Gets the nodes in which a sprite resides
+ * @param  {object} sprite A sprite object
+ * @return {Array<Node2D>} A collection of nodes
+ */
+Map2D.prototype.whichNodes = function (sprite) {
     "use strict";
     var map = this.map,
         lx = Math.max(Math.floor((sprite.x - sprite.radius) / this.blockSize), 0),
@@ -118,7 +123,7 @@ Map2D.prototype.add = function (sprite) {
     if (index >= 0) {
         return false;
     }
-    nodes = this.getNodes(sprite);
+    nodes = this.whichNodes(sprite);
     for (i = 0, l = nodes.length; i < l; i++) {
         nodes[i].add(sprite);
     }
@@ -138,7 +143,7 @@ Map2D.prototype.remove = function (sprite) {
     if (index < 0) {
         return false;
     }
-    nodes = this.getNodes(sprite);
+    nodes = this.whichNodes(sprite);
     for (i = 0, l = nodes.length; i < l; i++) {
         nodes[i].remove(sprite);
     }
@@ -194,7 +199,7 @@ Map2D.prototype.distancePointPoint = function (pointA, pointB) {
 Map2D.prototype.collisions = function (sprite) {
     "use strict";
     var collisions = [],
-        nodes = this.getNodes(sprite),
+        nodes = this.whichNodes(sprite),
         compare = this.compare.bind(this, collisions, sprite),
         i,
         l;
