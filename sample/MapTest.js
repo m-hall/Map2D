@@ -11,14 +11,17 @@
         lastTime;
 
     function makeSprite() {
-        var r = 5 + Math.random() * 20;
-        return {
-            x: Math.random() * (width - r * 2) + r,
-            y: Math.random() * (height - r * 2) + r,
-            radius: r,
-            velocity: (50 + Math.random() * 100) / 1000,
-            angle: Math.PI * 2 * Math.random()
-        };
+        var r = 5 + Math.random() * 20,
+            sprite = {
+                x: Math.random() * (width - r * 2) + r,
+                y: Math.random() * (height - r * 2) + r,
+                radius: r,
+                velocity: (50 + Math.random() * 100) / 1000,
+                angle: Math.PI * 2 * Math.random()
+            };
+        sprite.xSpeed = Math.sin(sprite.angle) * sprite.velocity;
+        sprite.ySpeed = Math.cos(sprite.angle) * sprite.velocity;
+        return sprite;
     }
     function init() {
         var i;
@@ -42,16 +45,13 @@
         context.arc(sprite.x, sprite.y, sprite.radius, 0, Math.PI * 2);
     }
     function updateSprite(delta, sprite) {
-        var distance = sprite.velocity * delta,
-            x = Math.sin(sprite.angle) * distance,
-            y = Math.cos(sprite.angle) * distance;
-        sprite.x = (sprite.x + x) % width;
-        sprite.y = (sprite.y + y) % height;
+        sprite.x = (sprite.x + sprite.xSpeed * delta) % width;
+        sprite.y = (sprite.y + sprite.ySpeed * delta) % height;
         if (sprite.x < 0) {
-            sprite.x = width;
+            sprite.x = width + sprite.x;
         }
         if (sprite.y < 0) {
-            sprite.y = height;
+            sprite.y = height + sprite.y;
         }
     }
     function updateMapSprite(delta, sprite) {
