@@ -141,20 +141,6 @@ Map2D.prototype.all = function (fn) {
 /////////////////////////
 // Collision functions //
 /////////////////////////
-
-/**
- * Calculates distance from a point to a rectangle
- * @param  {object} point  Point with x, y
- * @param  {object} rect   Rectangle with x, y, width, height
- * @return {float}         Distance value
- */
-Map2D.prototype.distancePointRectangle = function (point, rect) {
-    "use strict";
-
-    var dx = Math.max(Math.min(point.x, rect.x + rect.width), rect.x),
-        dy = Math.max(Math.min(point.y, rect.y + rect.height), rect.y);
-    return Math.sqrt((point.x - dx) * (point.x - dx) + (point.y - dy) * (point.y - dy));
-};
 /**
  * Calculates the distance between 2 points
  * @param  {object} pointA  Point with x, y
@@ -168,68 +154,11 @@ Map2D.prototype.distancePointPoint = function (pointA, pointB) {
     return Math.sqrt(dx * dx + dy * dy);
 };
 /**
- * Checks if a sprite is radial
- * @param  {object}  sprite A sprite object
- * @return {Boolean}        True if the sprite is radial, false otherwise
- */
-Map2D.prototype.isRadial = function (sprite) {
-    "use strict";
-    return !isNaN(sprite.x) && !isNaN(sprite.y) && !isNaN(sprite.radius);
-};
-/**
- * Checks if a sprite has rectangular properties
- * @param  {object}  sprite A sprite object
- * @return {Boolean}        True if the sprite is rectangular, false otherwise
- */
-Map2D.prototype.isRectangular = function (sprite) {
-    "use strict";
-    return !isNaN(sprite.x) && !isNaN(sprite.y) && !isNaN(sprite.width) && !isNaN(sprite.height);
-};
-/**
  * Checks if a sprite collides with any other nodes in the map
  * @param  {object} sprite  A Sprite object with x, y and a defined size
  * @return {Array<object>}  A list of any other sprites this one collides with
  */
 Map2D.prototype.collisions = function (sprite) {
-    "use strict";
-    if (this.isRadial(sprite)) {
-        return this.radialCollisions(sprite);
-    }
-    if (this.isRectangular(sprite)) {
-        return this.rectangularCollisions(sprite);
-    }
-    return [];
-};
-/**
- * Compares 2 sprites assuming that the first is a radial object
- * @param  {Array} collisions A collection to push collisions to
- * @param  {object} sprite1    A Sprite object with x, y and radius
- * @param  {object} sprite2    A Sprite object with x, y and a defined height
- */
-Map2D.prototype.radialCompare = function (collisions, sprite1, sprite2) {
-    "use strict";
-    if (sprite1 === sprite2) {
-        return;
-    } else if (this.isRadial(sprite2)) {
-        if (this.distancePointPoint(sprite1, sprite2) < sprite1.radius + sprite2.radius) {
-            collisions.push(sprite2);
-        }
-    } else if (this.isRectangular(sprite2)) {
-        if (this.distancePointRectangle(sprite1, sprite2) < sprite1.radius) {
-            collisions.push(sprite2);
-        }
-    } else {
-        if (this.distancePointPoint(sprite1, sprite2) < sprite1.radius) {
-            collisions.push(sprite2);
-        }
-    }
-};
-/**
- * Checks if a radial sprite collides with any other nodes in the map
- * @param  {object} sprite A Sprite object with x, y and radius
- * @return {Array}         A collections of objects that the sprite collids with
- */
-Map2D.prototype.radialCollisions = function (sprite) {
     "use strict";
     var collisions = [],
         lx = Math.max(Math.floor((sprite.x - sprite.radius) / this.blockSize), 0),
@@ -246,4 +175,18 @@ Map2D.prototype.radialCollisions = function (sprite) {
     }
 
     return collisions;
+};
+/**
+ * Compares 2 sprites assuming that the first is a radial object
+ * @param  {Array} collisions A collection to push collisions to
+ * @param  {object} sprite1    A Sprite object with x, y and radius
+ * @param  {object} sprite2    A Sprite object with x, y and a defined height
+ */
+Map2D.prototype.compare = function (collisions, sprite1, sprite2) {
+    "use strict";
+    if (sprite1 === sprite2) {
+        return;
+    } else if (this.distancePointPoint(sprite1, sprite2) < sprite1.radius + sprite2.radius) {
+        collisions.push(sprite2);
+    }
 };
