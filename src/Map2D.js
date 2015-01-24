@@ -14,6 +14,7 @@ var Map2D = function (width, height, options) {
 
     this.width = width;
     this.height = height;
+    this.list = [];
 
     if (options.blockSize) {
         this.blockSize = options.blockSize;
@@ -26,23 +27,6 @@ var Map2D = function (width, height, options) {
 };
 Map2D.prototype.blockSize = 10;
 Map2D.prototype.nodeConstructor = Node2D;
-
-Object.defineProperty(
-    Map2D.prototype,
-    "list",
-    {
-        get: function () {
-            "use strict";
-            var i,
-                l,
-                items = [];
-            for (i = 0, l = this.nodes.length; i < l; i += 1) {
-                items = items.concat(this.nodes[i].list);
-            }
-            return items;
-        }
-    }
-);
 
 /**
  * Fills the map with nodes based on width, height and blockSize
@@ -93,21 +77,53 @@ Map2D.prototype.clear = function () {
         this.nodes[i].clear();
     }
 };
+Map2D.prototype.getNodes = function (sprite) {
+    "use strict";
+    var map = this.map,
+        lx = Math.max(Math.floor((sprite.x - sprite.radius) / this.blockSize), 0),
+        ly = Math.max(Math.floor((sprite.y - sprite.radius) / this.blockSize), 0),
+        mx = Math.min(Math.ceil((sprite.x + sprite.radius) / this.blockSize), Math.ceil(this.width / this.blockSize)),
+        my = Math.min(Math.ceil((sprite.y + sprite.radius) / this.blockSize), Math.ceil(this.height / this.blockSize)),
+        b = this.blockSize,
+        rect = {
+            x: 0,
+            y: 0,
+            width: b,
+            height: b
+        },
+        nodes = [],
+        x,
+        y;
+    for (x = lx; x < mx; x++) {
+        for (y = ly; y < my; y++) {
+            rect.x = x * b;
+            rect.y = y * b;
+            if (map[x] && map[x][y] && this.distancePointRectangle(sprite, rect) < sprite.radius) {
+                nodes.push(map[x][y]);
+            }
+        }
+    }
+    return nodes;
+};
 /**
  * Adds a sprite to the map
  * @param {object} sprite  A sprite object with x, y, and a defined size
  */
 Map2D.prototype.add = function (sprite) {
     "use strict";
-    var x = Math.floor(sprite.x / this.blockSize),
-        y = Math.floor(sprite.y / this.blockSize);
-
-    if (!this.map[x] || !this.map[x][y]) {
+    var index = this.list.indexOf(sprite),
+        nodes,
+        i,
+        l;
+    if (index >= 0) {
         return false;
     }
-
-    this.map[x][y].add(sprite);
-    return true;
+    nodes = this.getNodes(sprite);
+    for (i = 0, l = nodes.length; i < l; i++) {
+        nodes[i].add(sprite);
+    }
+    this.list.push(sprite);
+    return nodes.length > 0;
 };
 /**
  * Removes a sprite from the map
@@ -115,16 +131,19 @@ Map2D.prototype.add = function (sprite) {
  */
 Map2D.prototype.remove = function (sprite) {
     "use strict";
-
-    var x = Math.floor(sprite.x / this.blockSize),
-        y = Math.floor(sprite.y / this.blockSize);
-
-    if (!this.map[x] || !this.map[x][y]) {
+    var index = this.list.indexOf(sprite),
+        nodes,
+        i,
+        l;
+    if (index < 0) {
         return false;
     }
-
-    this.map[x][y].remove(sprite);
-    return true;
+    nodes = this.getNodes(sprite);
+    for (i = 0, l = nodes.length; i < l; i++) {
+        nodes[i].remove(sprite);
+    }
+    this.list.splice(index, 1);
+    return nodes.length > 0;
 };
 /**
  * Runs a command against all sprites
@@ -141,6 +160,20 @@ Map2D.prototype.all = function (fn) {
 /////////////////////////
 // Collision functions //
 /////////////////////////
+
+/**
+ * Calculates distance from a point to a rectangle
+ * @param  {object} point  Point with x, y
+ * @param  {object} rect   Rectangle with x, y, width, height
+ * @return {float}         Distance value
+ */
+Map2D.prototype.distancePointRectangle = function (point, rect) {
+    "use strict";
+
+    var dx = Math.max(Math.min(point.x, rect.x + rect.width), rect.x),
+        dy = Math.max(Math.min(point.y, rect.y + rect.height), rect.y);
+    return Math.sqrt((point.x - dx) * (point.x - dx) + (point.y - dy) * (point.y - dy));
+};
 /**
  * Calculates the distance between 2 points
  * @param  {object} pointA  Point with x, y
@@ -161,17 +194,13 @@ Map2D.prototype.distancePointPoint = function (pointA, pointB) {
 Map2D.prototype.collisions = function (sprite) {
     "use strict";
     var collisions = [],
-        lx = Math.max(Math.floor((sprite.x - sprite.radius) / this.blockSize), 0),
-        ly = Math.max(Math.floor((sprite.y - sprite.radius) / this.blockSize), 0),
-        mx = Math.min(Math.ceil((sprite.x + sprite.radius) / this.blockSize), 0),
-        my = Math.min(Math.ceil((sprite.y + sprite.radius) / this.blockSize), 0),
-        x,
-        y;
+        nodes = this.getNodes(sprite),
+        compare = this.compare.bind(this, collisions, sprite),
+        i,
+        l;
 
-    for (x = mx; x > lx; x--) {
-        for (y = my; y > ly; y--) {
-            map[x][y].all(this.radialCompare.call(this, collisions, sprite));
-        }
+    for (i = 0, l = nodes.length; i < l; i++) {
+        nodes[i].all(compare);
     }
 
     return collisions;
