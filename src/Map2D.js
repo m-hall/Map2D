@@ -25,6 +25,22 @@ var Map2D = function (width, height, options) {
 
     this.reset();
 };
+/**
+ * A faster indexOf function for arrays
+ * @param  {Array} array  An array
+ * @param  {object} item  Anything
+ * @return {int}          The location of the item in the array, or -1
+ */
+Map2D.arrayIndexOf = function (array, item) {
+    "use strict";
+    var i, l;
+    for (i = 0, l = array.length; i < l; i++) {
+        if (array[i] === item) {
+            return i;
+        }
+    }
+    return -1;
+};
 Map2D.prototype.blockSize = 10;
 Map2D.prototype.nodeConstructor = Node2D;
 
@@ -116,7 +132,7 @@ Map2D.prototype.whichNodes = function (sprite) {
  */
 Map2D.prototype.add = function (sprite) {
     "use strict";
-    var index = this.list.indexOf(sprite),
+    var index = Map2D.arrayIndexOf(this.list, sprite),
         nodes,
         i,
         l;
@@ -136,7 +152,7 @@ Map2D.prototype.add = function (sprite) {
  */
 Map2D.prototype.remove = function (sprite) {
     "use strict";
-    var index = this.list.indexOf(sprite),
+    var index = Map2D.arrayIndexOf(this.list, sprite),
         nodes,
         i,
         l;
@@ -210,7 +226,7 @@ Map2D.prototype.collisions = function (sprite) {
         nodes[i].all(compare);
     }
     for (i = collisions.length; i--;) {
-        if (collisions.indexOf(collisions[i]) !== i) {
+        if (Map2D.arrayIndexOf(collisions, collisions[i]) !== i) {
             collisions.splice(i, 1);
         }
     }
