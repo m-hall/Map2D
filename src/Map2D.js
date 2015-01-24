@@ -156,9 +156,11 @@ Map2D.prototype.remove = function (sprite) {
  */
 Map2D.prototype.all = function (fn) {
     "use strict";
-    var i, l;
-    for (i = 0, l = this.nodes.length; i < l; i += 1) {
-        this.nodes[i].all(fn);
+    var tmpList = this.list.concat(),
+        i,
+        l;
+    for (i = 0, l = tmpList.length; i < l; i += 1) {
+        fn(tmpList[i]);
     }
 };
 
