@@ -202,6 +202,11 @@ Map2D.prototype.collisions = function (sprite) {
     for (i = 0, l = nodes.length; i < l; i++) {
         nodes[i].all(compare);
     }
+    for (i = collisions.length; i--;) {
+        if (collisions.indexOf(collisions[i]) !== i) {
+            collisions.splice(i, 1);
+        }
+    }
 
     return collisions;
 };
