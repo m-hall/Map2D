@@ -1,4 +1,4 @@
 Map2D
 =====
 
-A 2D Collision Map.
+A collision map for 2D radial sprites.
